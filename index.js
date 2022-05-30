@@ -1,4 +1,3 @@
-import "dotenv/config";
 import express, { urlencoded } from "express";
 import cors from "cors";
 const app = express();
