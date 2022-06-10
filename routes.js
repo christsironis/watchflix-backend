@@ -10,7 +10,7 @@ export const socket = express.Router();
 socket.post("/getroom", async function (req, res) {
 	console.log(req.body)
 	const room = CreateRoomId(req.body);
-	res.redirect(301,"http://localhost:3000/room/"+room);
+	res.redirect(301,process.env.CLIENT+room);
 });
 
 router.get("/searchdata", async function (req, res) {
