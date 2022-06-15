@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import express, { urlencoded } from "express";
 import cors from "cors";
 import {router, socket} from "./routes.js";
