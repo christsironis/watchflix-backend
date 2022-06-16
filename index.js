@@ -37,20 +37,20 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-	console.log(socket.conn.transport.name);
+	// console.log(socket.conn.transport.name);
 	socket.on("ping", (callback) => {
 		console.log("ping")	
 		callback();
 	  });
-	socket.on("initialize_room", ({room,user},callback) => {
-		if(!Object.keys(rooms).includes(room)) return;
-		if(!Object.keys(rooms[room]?.users).length){ return; }
-		rooms[room].users[user].id = socket.id;
-		console.log(rooms[room])	
-		callback(rooms[room].users);
-		socket.join(room);
-		socket.to(room).emit("addPlayer_room",{name:user,id: socket.id, color: rooms[room].users[user].color});
-	});
+	// socket.on("initialize_room", ({room,user},callback) => {
+	// 	if(!Object.keys(rooms).includes(room)) return;
+	// 	if(!Object.keys(rooms[room]?.users).length){ return; }
+	// 	rooms[room].users[user].id = socket.id;
+	// 	console.log(rooms[room])	
+	// 	callback(rooms[room].users);
+	// 	socket.join(room);
+	// 	socket.to(room).emit("addPlayer_room",{name:user,id: socket.id, color: rooms[room].users[user].color});
+	// });
 
 	socket.on("startGame",(room)=>{
 		if(!rooms?.[room]){ return; }
