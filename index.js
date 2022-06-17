@@ -62,9 +62,9 @@ io.on("connection", (socket) => {
 	});
 	socket.on("disconnect", () => {
 		console.log("user disconnected");
-		const data = JSON.parse(decodeURIComponent(socket.handshake.headers.cookie).split("=")[1]);
-		delete rooms[data.room]?.users[data.username];
-		if( !Object.keys(rooms).length ) delete rooms[data.room];
+		const data = JSON.parse(decodeURIComponent(socket?.handshake?.headers?.cookie)?.split("=")[1] ?? null);
+		delete rooms[data.room]?.users[data?.username];
+		if( !Object.keys(rooms)?.length ) delete rooms[data?.room];
 	});
 });
 
