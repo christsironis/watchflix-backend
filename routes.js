@@ -9,24 +9,34 @@ router.use(cookieParser());
 socket.post("/createRoom", async function (req, res) {;
 	console.log(req.body)
 	if( !req.body.title || !req.body.magnet || !req.body.username){ 
-		res.status(200).send(`You didn't fill all of the filleds`);
+		res.status(400).send(`You didn't fill all of the filleds`);
         return;
     }
-	const room = CreateRoomId(req.body);
-	res.cookie('watchflix', JSON.stringify({...req.body, room: room}), { domain: "localhost:3000", maxAge: 60000 * 60 * 24 });
-	res.redirect(process.env.CLIENT+"/room/"+room);
+	res.send( `${CreateRoomId(req.body)}` );
 	return;
 });
 socket.post("/joinRoom", async function (req, res) {;
-	if( !req.cookies.room || !req.cookies.username){ 
-		res.status(200).send(`You didn't fill all of the filleds`);
+	let room = req.body?.room;
+	if( !room || !req.body?.username){ 
+		res.status(400).send(`You didn't fill all of the filleds`);
         return;
     }
-	let room = req.cookies.room;
     if(rooms.hasOwnProperty(room)){
-		res.redirect(process.env.CLIENT+"/room/"+room);
+		res.send(room);
     }else{
-        res.send("Room doesn't exists, try to create a room first");
+        res.status(400).send("Room doesn't exists, try to create a room first");
+    }
+});
+socket.post("/roomExists", async function (req, res) {;
+	let room = req.body.room;
+	if( !room){ 
+		res.status(400).send(`You didn't fill all of the filleds`);
+        return;
+    }
+    if(rooms.hasOwnProperty(room)){
+		res.status(200).end();
+    }else{
+        res.status(400).send("Room doesn't exists, try to create a room first");
     }
 });
 
@@ -61,11 +71,11 @@ router.get("/:type/:id",async function (req, res) {
 	res.json(film);
 });
 
-function CreateRoomId(rooms) {
+function CreateRoomId(data) {
     let room = Math.floor(Math.random() * 90000) + 10000;
     while (rooms.hasOwnProperty(room)) {
         room = Math.floor(Math.random() * 90000) + 10000;
     }
-    rooms[room] = {users:{}, magnet: null, title: null, hash: null, subs: null }
+    rooms[room] = {users:{}, magnet: data.magnet, title: data.title, hash: data.hash, subs: null }
     return room;
 }
