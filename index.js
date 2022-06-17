@@ -9,6 +9,7 @@ export const app = express();
 const httpServer = createServer(app);
 
 export let rooms = {};
+export let colors = [];
 export let searchData = [];
 export let movies = [];
 export let series = [];
@@ -37,62 +38,33 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-	// console.log(socket.conn.transport.name);
+	console.log(socket.id);
 	socket.on("ping", (callback) => {
-		console.log("ping")	
 		callback();
 	  });
-	// socket.on("initialize_room", ({room,user},callback) => {
-	// 	if(!Object.keys(rooms).includes(room)) return;
-	// 	if(!Object.keys(rooms[room]?.users).length){ return; }
-	// 	rooms[room].users[user].id = socket.id;
-	// 	console.log(rooms[room])	
-	// 	callback(rooms[room].users);
-	// 	socket.join(room);
-	// 	socket.to(room).emit("addPlayer_room",{name:user,id: socket.id, color: rooms[room].users[user].color});
-	// });
-
-	socket.on("startGame",(room)=>{
-		if(!rooms?.[room]){ return; }
-		if(rooms?.[room]?.activeRound){ return; }
-		rooms[room].winners={};
-		rooms[room].activeRound=true;
-		io.in(room).emit("startTimer");
-		setTimeout(()=>{
-			rooms[room].activeRound=false;
-			if(!Object.keys(rooms[room].winners).length){ 
-				io.in(room).emit("results",{1:{username:"Do you really know how to play?"}});
-				return;
-			}
-			io.in(room).emit("results",rooms[room].winners);
-		},(rooms[room].countdown + rooms[room].delay)*1000);
+	socket.on("initialize_room", ({room,user},callback) => {
+		if( !rooms?.[room] ) return;
+		const color = getRandomColor();
+		socket.join(room);
+		rooms[room].users[user] = { id: socket.id, color: color };
+		callback( rooms[room] );
+		socket.to(room).emit("addPlayer_room",{ user: user, id: socket.id, color: color});
+		// console.log(rooms[room],rooms)	
 	});
 
-	socket.on("pressed",({room,username})=>{
-		let index = Object.keys(rooms[room].winners).length + 1;
-		if(Object.keys(rooms[room].winners).length){
-			for(const x in rooms[room].winners){
-				if(rooms[room].winners[x].username==username){ return; }
-			}
-		}
-		rooms[room].winners[index]={username:username, color: rooms[room].users[username].color};
+	socket.on("leave_room", ({ room, user}) => {
+		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`);
+		socket.leave(room);
+		delete rooms[room]?.users[user];
+		console.log("users in room: "+room,rooms[room]?.users)
+		if( !Object.keys(rooms).length ) delete rooms[room];
+		// console.log(rooms)
 	});
-
 	socket.on("disconnect", () => {
-		let data={};
-		for(let room in rooms){
-			for (const [user, {id}] of Object.entries(rooms[room].users)) {
-				if(id == socket.id){
-					delete rooms[room].users[user];
-					data.room = room;
-					data.user = user;
-					data.id = socket.id;
-				}
-			}
-		}
-		socket.leave(data.room);
-		io.in(data.room).emit("eraseUser",data);
 		console.log("user disconnected");
+		const data = JSON.parse(decodeURIComponent(socket.handshake.headers.cookie).split("=")[1]);
+		delete rooms[data.room]?.users[data.username];
+		if( !Object.keys(rooms).length ) delete rooms[data.room];
 	});
 });
 
@@ -101,3 +73,19 @@ setTimeout(()=>{
 	WSM_FetchAllData();
 	WSM_FetchSearchData();
 },3600000);
+
+
+function getRandomColor() {
+	var percent = [10,20,30,40,50,60,70,80,90];
+	let color = "";
+	color += Math.floor(Math.random() * 361)+"deg";
+	for (var i = 0; i < 2; i++) {
+	  color += " " + percent[Math.floor(Math.random() * 10)]+ "%";
+	}
+	if(colors.length){
+		if( colors.includes(color)){
+			color = getRandomColor();
+		}
+	}
+	return color;
+}

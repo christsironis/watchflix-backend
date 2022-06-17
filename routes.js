@@ -7,7 +7,7 @@ export const socket = express.Router();
 router.use(cookieParser());
 
 socket.post("/createRoom", async function (req, res) {;
-	console.log(req.body)
+	// console.log(req.body)
 	if( !req.body.title || !req.body.magnet || !req.body.username){ 
 		res.status(400).send(`You didn't fill all of the filleds`);
         return;
@@ -16,28 +16,38 @@ socket.post("/createRoom", async function (req, res) {;
 	return;
 });
 socket.post("/joinRoom", async function (req, res) {;
-	let room = req.body?.room;
-	if( !room || !req.body?.username){ 
+	const room = req.body?.room;
+	const user = req.body?.username;
+	if( !room || !user){ 
 		res.status(400).send(`You didn't fill all of the filleds`);
         return;
     }
-    if(rooms.hasOwnProperty(room)){
-		res.send(room);
-    }else{
+    if(!rooms.hasOwnProperty(room)){
         res.status(400).send("Room doesn't exists, try to create a room first");
-    }
+		return;
+	}
+	if(rooms[room].users.hasOwnProperty(user)){
+		res.status(400).send("Username already exists");
+		return;
+	}
+	res.send(room);
 });
 socket.post("/roomExists", async function (req, res) {;
-	let room = req.body.room;
+	const room = req.body.room;
+	const user = req.body?.username;
 	if( !room){ 
 		res.status(400).send(`You didn't fill all of the filleds`);
         return;
     }
-    if(rooms.hasOwnProperty(room)){
-		res.status(200).end();
-    }else{
+    if(!rooms.hasOwnProperty(room)){
         res.status(400).send("Room doesn't exists, try to create a room first");
+		return;
+	}
+	if(rooms[room].users.hasOwnProperty(user)){
+		res.status(400).send("Username already exists");
+		return;
     }
+	res.status(200).end();
 });
 
 router.get("/searchdata", async function (req, res) {
