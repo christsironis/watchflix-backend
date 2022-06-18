@@ -8,7 +8,7 @@ import { WSM_FetchSearchData, ReadJson, WriteJson, WSM_FetchAllData } from "./ut
 export const app = express();
 const httpServer = createServer(app);
 
-export let rooms = {};
+export let rooms = {"25":{users:{},timestamp:0}};
 export let colors = [];
 export let searchData = [];
 export let movies = [];
@@ -39,7 +39,7 @@ const io = new Server(httpServer, {
 
 io.on("connection", (socket) => {
 	console.log(socket.id);
-	socket.on("ping", (callback) => {
+	socket.volatile.on("ping", (callback) => {
 		callback();
 	  });
 	socket.on("initialize_room", ({room,user},callback) => {
@@ -49,22 +49,38 @@ io.on("connection", (socket) => {
 		rooms[room].users[user] = { id: socket.id, color: color };
 		callback( rooms[room] );
 		socket.to(room).emit("addPlayer_room",{ user: user, id: socket.id, color: color});
-		// console.log(rooms[room],rooms)	
 	});
-
+	socket.on("timeupdate", ({ time, user, room }) =>{
+		clearInterval( rooms[room].timeInterval );
+		rooms[room].timestamp = time;
+		socket.to(room).emit("timeupdate", {time: time, user: user});
+		rooms[room].timeInterval = setInterval( ()=> { rooms[room].timestamp++; },1000);
+		console.log(rooms[room].timestamp)
+	});
+	socket.on("pause", ({ time, user, room }) =>{
+		clearInterval( rooms[room].timeInterval );
+		socket.to(room).emit("pause", {time: rooms[room].timestamp, user: user});
+		console.log(rooms[room].timestamp)
+	});
+	socket.on("play", ({ time, user, room }) =>{
+		rooms[room].timestamp = time;
+		console.log(rooms[room].timestamp);
+		rooms[room].timeInterval = setInterval( ()=> { rooms[room].timestamp++; },1000);
+		socket.to(room).emit("play", {time: time, user: user});
+	});
 	socket.on("leave_room", ({ room, user}) => {
 		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`);
 		socket.leave(room);
 		delete rooms[room]?.users[user];
 		console.log("users in room: "+room,rooms[room]?.users)
-		if( !Object.keys(rooms).length ) delete rooms[room];
+		// if( rooms[room] && Object.keys(rooms[room]?.users).length === 0 ) delete rooms[room];
 		// console.log(rooms)
 	});
 	socket.on("disconnect", () => {
 		console.log("user disconnected");
 		const data = JSON.parse(decodeURIComponent(socket?.handshake?.headers?.cookie)?.split("=")[1] ?? null);
-		delete rooms[data.room]?.users[data?.username];
-		if( !Object.keys(rooms).length ) delete rooms[data?.room];
+		delete rooms[data?.room]?.users[data?.username];
+		// if( rooms[data?.room] && Object.keys(rooms[data?.room]?.users).length === 0 ) delete rooms[data?.room];
 	});
 });
 
@@ -79,9 +95,9 @@ function getRandomColor() {
 	var percent = [10,20,30,40,50,60,70,80,90];
 	let color = "";
 	color += Math.floor(Math.random() * 361)+"deg";
-	for (var i = 0; i < 2; i++) {
-	  color += " " + percent[Math.floor(Math.random() * 10)]+ "%";
-	}
+	color += " " + percent[Math.floor(Math.random() * 9)]+ "%";
+	color += " " + percent[Math.floor(Math.random() * 9)]+ "%";
+
 	if(colors.length){
 		if( colors.includes(color)){
 			color = getRandomColor();
