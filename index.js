@@ -8,7 +8,7 @@ import { WSM_FetchSearchData, ReadJson, WriteJson, WSM_FetchAllData } from "./ut
 export const app = express();
 const httpServer = createServer(app);
 
-export let rooms = {"25":{users:{},timestamp:0}};
+export let rooms = {"25":{users:{},timestamp:0.0,date: 0,timepassed: 0,ispaused:true}};
 export let colors = [];
 export let searchData = [];
 export let movies = [];
@@ -39,8 +39,12 @@ const io = new Server(httpServer, {
 
 io.on("connection", (socket) => {
 	console.log(socket.id);
-	socket.volatile.on("ping", (callback) => {
-		callback();
+	socket.on("ping",( room, callback) => {
+		const dateNow = Date.now();
+		if(!rooms[room].ispaused) {
+			rooms[room].timestamp = dateNow - rooms[room].date;
+		}
+		callback((rooms[room].timestamp/1000).toFixed(3));
 	  });
 	socket.on("initialize_room", ({room,user},callback) => {
 		if( !rooms?.[room] ) return;
@@ -50,23 +54,16 @@ io.on("connection", (socket) => {
 		callback( rooms[room] );
 		socket.to(room).emit("addPlayer_room",{ user: user, id: socket.id, color: color});
 	});
-	socket.on("timeupdate", ({ time, user, room }) =>{
-		clearInterval( rooms[room].timeInterval );
-		rooms[room].timestamp = time;
-		socket.to(room).emit("timeupdate", {time: time, user: user});
-		rooms[room].timeInterval = setInterval( ()=> { rooms[room].timestamp++; },1000);
-		console.log(rooms[room].timestamp)
-	});
 	socket.on("pause", ({ time, user, room }) =>{
-		clearInterval( rooms[room].timeInterval );
+		rooms[room].timestamp = Date.now() - rooms[room].date;
+		rooms[room].ispaused = true;
 		socket.to(room).emit("pause", {time: rooms[room].timestamp, user: user});
-		console.log(rooms[room].timestamp)
 	});
 	socket.on("play", ({ time, user, room }) =>{
-		rooms[room].timestamp = time;
-		console.log(rooms[room].timestamp);
-		rooms[room].timeInterval = setInterval( ()=> { rooms[room].timestamp++; },1000);
 		socket.to(room).emit("play", {time: time, user: user});
+		rooms[room].date = Date.now() - time*1000;
+		rooms[room].timestamp = time;
+		rooms[room].ispaused = false;
 	});
 	socket.on("leave_room", ({ room, user}) => {
 		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`);
