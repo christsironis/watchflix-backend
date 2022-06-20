@@ -57,7 +57,7 @@ io.on("connection", (socket) => {
 	socket.on("pause", ({ time, user, room }) =>{
 		rooms[room].timestamp = Date.now() - rooms[room].date;
 		rooms[room].ispaused = true;
-		socket.to(room).emit("pause", {time: rooms[room].timestamp, user: user});
+		socket.to(room).emit("pause", {time: (rooms[room].timestamp/1000).toFixed(3), user: user});
 	});
 	socket.on("play", ({ time, user, room }) =>{
 		socket.to(room).emit("play", {time: time, user: user});
