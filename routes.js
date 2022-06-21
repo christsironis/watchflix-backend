@@ -1,5 +1,5 @@
 import express from "express";
-import { searchData, movies, series, app , rooms} from "./index.js";
+import { searchData, movies, series, app , rooms, users} from "./index.js";
 import cookieParser from "cookie-parser";
 
 export const router = express.Router();
@@ -22,11 +22,11 @@ socket.post("/joinRoom", async function (req, res) {;
 		res.status(400).send(`You didn't fill all of the filleds`);
         return;
     }
-    if(!rooms.hasOwnProperty(room)){
+    if( !rooms.hasOwnProperty(room) ){
         res.status(400).send("Room doesn't exists, try to create a room first");
 		return;
 	}
-	if(rooms[room]?.users.hasOwnProperty(user)){
+	if( users.hasOwnProperty(user) ){
 		res.status(400).send("Username already exists");
 		return;
 	}
@@ -39,11 +39,11 @@ socket.post("/roomExists", async function (req, res) {;
 		res.status(400).send(`You didn't fill all of the filleds`);
         return;
     }
-    if(!rooms.hasOwnProperty(room)){
+    if( !rooms.hasOwnProperty(room) ){
         res.status(400).send("Room doesn't exists, try to create a room first");
 		return;
 	}
-	if(rooms[room]?.users.hasOwnProperty(user)){
+	if( users.hasOwnProperty(user) ){
 		res.status(400).send("Username already exists");
 		return;
     }
@@ -86,6 +86,7 @@ function CreateRoomId(data) {
     while (rooms.hasOwnProperty(room)) {
         room = Math.floor(Math.random() * 90000) + 10000;
     }
-    rooms[room] = {users:{}, magnet: data.magnet, title: data.title, hash: data.hash, timestamp: 0, timeInterval: null, subs: null }
-    return room;
+    rooms[room] = { magnet: data.magnet, title: data.title, hash: data.hash, timestamp: 0, date: 0 , ispaused: true, subs: null, colors: [] }
+    users[room] = {};
+	return room;
 }

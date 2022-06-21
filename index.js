@@ -8,8 +8,8 @@ import { WSM_FetchSearchData, ReadJson, WriteJson, WSM_FetchAllData } from "./ut
 export const app = express();
 const httpServer = createServer(app);
 
-export let rooms = {"25":{users:{},timestamp:0.0,date: 0,timepassed: 0,ispaused:true}};
-export let colors = [];
+export let rooms = {"25":{timestamp:0.0,date: 0,ispaused:true, colors: []}};
+export let users = {"25":{}};
 export let searchData = [];
 export let movies = [];
 export let series = [];
@@ -20,7 +20,7 @@ ReadJson("newSeries.json").then( data=> series = data );
 //required in order to receive json data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })) 
-app.use(cors({ origin: "*", credentials: true}));
+app.use(cors({ origin: "*" }));
 app.use("/api", router);
 app.use("/socket", socket);
 
@@ -31,11 +31,10 @@ httpServer.listen(port, () => {
 });
 
 const io = new Server(httpServer, {
-	transports: ['websocket','polling'],
+	transports: ['websocket'],
 	cors: {
 		origin: "*",
 		methods: ["GET", "POST"],
-		credentials: true
 	},
 });
 
@@ -50,10 +49,11 @@ io.on("connection", (socket) => {
 	  });
 	socket.on("initialize_room", ({room,user},callback) => {
 		if( !rooms?.[room] ) return;
-		const color = getRandomColor();
+		const color = getRandomColor(room);
 		socket.join(room);
-		rooms[room].users[user] = { id: socket.id, color: color };
-		callback( rooms[room] );
+		users[room].user = { id: socket.id, color: color };
+		rooms[room].colors.push( color );
+		callback( { users: users[room], data: rooms[room] } );
 		socket.to(room).emit("addPlayer_room",{ user: user, id: socket.id, color: color});
 	});
 	socket.on("pause", ({ time, user, room }) =>{
@@ -70,18 +70,16 @@ io.on("connection", (socket) => {
 	socket.on("leave_room", ({ room, user}) => {
 		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`);
 		socket.leave(room);
-		delete rooms[room]?.users[user];
-		console.log(user +" user left room: "+room,rooms[room]?.users)
-		// if( rooms[room] && Object.keys(rooms[room]?.users).length === 0 ) delete rooms[room];
+		delete users[room]?.user;
+		console.log(user +" user left room: "+room,users[room])
+		// if( rooms[data?.room] && Object.keys(users[data?.room]).length === 0 ) { delete rooms[data?.room]; delete users[data?.room];}
 		// console.log(rooms)
 	});
 	socket.on("disconnect", () => {
 		const data = JSON.parse(decodeURIComponent(socket.handshake.headers?.cookie)?.split("=")[1] ?? null);
-		console.log(rooms[25]?.users);
-		console.log(socket.handshake);
 		console.log(data?.username+" user disconnected");
-		delete rooms[data?.room]?.users[data?.username];
-		// if( rooms[data?.room] && Object.keys(rooms[data?.room]?.users).length === 0 ) delete rooms[data?.room];
+		delete users[data?.room]?.[data?.username];
+		// if( rooms[data?.room] && Object.keys(users[data?.room]).length === 0 ) { delete rooms[data?.room]; delete users[data?.room];}
 	});
 });
 
@@ -92,15 +90,15 @@ setTimeout(()=>{
 },3600000);
 
 
-function getRandomColor() {
+function getRandomColor(room) {
 	var percent = [10,20,30,40,50,60,70,80,90];
 	let color = "";
 	color += Math.floor(Math.random() * 361)+"deg";
 	color += " " + percent[Math.floor(Math.random() * 9)]+ "%";
 	color += " " + percent[Math.floor(Math.random() * 9)]+ "%";
 
-	if(colors.length){
-		if( colors.includes(color)){
+	if(rooms[room]?.colors.length){
+		if( rooms[room]?.colors?.includes(color)){
 			color = getRandomColor();
 		}
 	}
