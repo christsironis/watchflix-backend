@@ -9,7 +9,7 @@ export const app = express();
 const httpServer = createServer(app);
 
 export let rooms = {"25":{timestamp:0.0,date: 0,ispaused:true, colors: []}};
-export let users = {"25":{}};
+export let users = {"25":{}, socketIDs: {}};
 export let searchData = [];
 export let movies = [];
 export let series = [];
@@ -52,9 +52,10 @@ io.on("connection", (socket) => {
 		const color = getRandomColor(room);
 		socket.join(room);
 		users[room][user] = { id: socket.id, color: color };
+		users.socketIDs[socket.id] = { user: user, room: room };
 		rooms[room].colors.push( color );
-		callback( { users: users[room], data: rooms[room] } );
 		socket.to(room).emit("addPlayer_room",{ user: user, id: socket.id, color: color});
+		callback( { users: users[room], data: rooms[room] } );
 	});
 	socket.on("pause", ({ time, user, room }) =>{
 		rooms[room].timestamp = Date.now() - rooms[room].date;
@@ -68,34 +69,22 @@ io.on("connection", (socket) => {
 		rooms[room].ispaused = false;
 	});
 	socket.on("leave_room", ({ room, user}) => {
-		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`);
+		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`,users[room]);
 		socket.leave(room);
-		console.log(user +" user left room: "+room,users[room]);
-		// delete users[room]?.user;
+		delete users[ users.socketIDs?.[socket.id]?.room ]?.[ users.socketIDs?.[socket.id]?.user ];
 		// if( rooms[data?.room] && Object.keys(users[data?.room]).length === 0 ) { delete rooms[data?.room]; delete users[data?.room];}
-		// console.log(rooms)
-		for(const room in users){
-			for (const [user, {id}] of Object.entries(users[room])) {
-				if(id == socket.id){
-					delete users[room][user];
-					console.log(user)
-				}
-			}
-		}
 	});
 	socket.on("disconnect", () => {
-		const data = JSON.parse(decodeURIComponent(socket.handshake.headers?.cookie)?.split("=")[1] ?? null);
-		console.log(data?.username+" user disconnected");
-		// delete users[data?.room]?.[data?.username];
+		console.log(users.socketIDs?.[socket.id]?.user+" user disconnected");
+		delete users[ users.socketIDs?.[socket.id]?.room ]?.[ users.socketIDs?.[socket.id]?.user ];
+		// for(const room in users){
+		// 	for (const [user, {id}] of Object.entries(users[room])) {
+		// 		if(id == socket.id){
+		// 			delete users[room][user];
+		// 		}
+		// 	}
+		// }
 		// if( rooms[data?.room] && Object.keys(users[data?.room]).length === 0 ) { delete rooms[data?.room]; delete users[data?.room];}
-		for(const room in users){
-			for (const [user, {id}] of Object.entries(users[room])) {
-				if(id == socket.id){
-					delete users[room][user];
-					console.log(user)
-				}
-			}
-		}
 	});
 });
 
