@@ -26,7 +26,7 @@ socket.post("/joinRoom", async function (req, res) {;
         res.status(400).send("Room doesn't exists, try to create a room first");
 		return;
 	}
-	if( users.hasOwnProperty(user) ){
+	if( users[room].hasOwnProperty(user) ){
 		res.status(400).send("Username already exists");
 		return;
 	}
@@ -43,7 +43,7 @@ socket.post("/roomExists", async function (req, res) {;
         res.status(400).send("Room doesn't exists, try to create a room first");
 		return;
 	}
-	if( users.hasOwnProperty(user) ){
+	if( users[room].hasOwnProperty(user) ){
 		res.status(400).send("Username already exists");
 		return;
     }

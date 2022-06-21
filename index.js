@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
 		if( !rooms?.[room] ) return;
 		const color = getRandomColor(room);
 		socket.join(room);
-		users[room].user = { id: socket.id, color: color };
+		users[room][user] = { id: socket.id, color: color };
 		rooms[room].colors.push( color );
 		callback( { users: users[room], data: rooms[room] } );
 		socket.to(room).emit("addPlayer_room",{ user: user, id: socket.id, color: color});
@@ -70,16 +70,32 @@ io.on("connection", (socket) => {
 	socket.on("leave_room", ({ room, user}) => {
 		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`);
 		socket.leave(room);
-		delete users[room]?.user;
-		console.log(user +" user left room: "+room,users[room])
+		console.log(user +" user left room: "+room,users[room]);
+		// delete users[room]?.user;
 		// if( rooms[data?.room] && Object.keys(users[data?.room]).length === 0 ) { delete rooms[data?.room]; delete users[data?.room];}
 		// console.log(rooms)
+		for(const room in users){
+			for (const [user, {id}] of Object.entries(users[room])) {
+				if(id == socket.id){
+					delete users[room][user];
+					console.log(user)
+				}
+			}
+		}
 	});
 	socket.on("disconnect", () => {
 		const data = JSON.parse(decodeURIComponent(socket.handshake.headers?.cookie)?.split("=")[1] ?? null);
 		console.log(data?.username+" user disconnected");
-		delete users[data?.room]?.[data?.username];
+		// delete users[data?.room]?.[data?.username];
 		// if( rooms[data?.room] && Object.keys(users[data?.room]).length === 0 ) { delete rooms[data?.room]; delete users[data?.room];}
+		for(const room in users){
+			for (const [user, {id}] of Object.entries(users[room])) {
+				if(id == socket.id){
+					delete users[room][user];
+					console.log(user)
+				}
+			}
+		}
 	});
 });
 
