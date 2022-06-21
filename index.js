@@ -20,7 +20,7 @@ ReadJson("newSeries.json").then( data=> series = data );
 //required in order to receive json data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })) 
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "*", credentials: true}));
 app.use("/api", router);
 app.use("/socket", socket);
 
@@ -31,6 +31,7 @@ httpServer.listen(port, () => {
 });
 
 const io = new Server(httpServer, {
+	transports: ['websocket','polling'],
 	cors: {
 		origin: "*",
 		methods: ["GET", "POST"],
