@@ -31,7 +31,7 @@ httpServer.listen(port, () => {
 });
 
 const io = new Server(httpServer, {cookie: true,
-	// transports: ['websocket'],
+	transports: ['websocket'],
 	cors: {
 		origin: "*",
 		methods: ["GET", "POST"],
@@ -39,7 +39,7 @@ const io = new Server(httpServer, {cookie: true,
 });
 
 io.on("connection", (socket) => {
-	console.log(socket);
+	console.log(socket.handshake);
 	console.log(socket.id);
 	socket.on("ping",( room, callback) => {
 		const dateNow = Date.now();
