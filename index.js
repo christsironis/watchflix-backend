@@ -69,13 +69,14 @@ io.on("connection", (socket) => {
 		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`);
 		socket.leave(room);
 		delete rooms[room]?.users[user];
-		console.log("users in room: "+room,rooms[room]?.users)
+		console.log(user +" user left room: "+room,rooms[room]?.users)
 		// if( rooms[room] && Object.keys(rooms[room]?.users).length === 0 ) delete rooms[room];
 		// console.log(rooms)
 	});
 	socket.on("disconnect", () => {
-		console.log("user disconnected");
-		const data = JSON.parse(decodeURIComponent(socket?.handshake?.headers?.cookie)?.split("=")[1] ?? null);
+		const data = JSON.parse(decodeURIComponent(socket.handshake.headers?.cookie)?.split("=")[1] ?? null);
+		console.log(rooms[data?.room]?.users[data?.username]);
+		console.log(data?.username+" user disconnected");
 		delete rooms[data?.room]?.users[data?.username];
 		// if( rooms[data?.room] && Object.keys(rooms[data?.room]?.users).length === 0 ) delete rooms[data?.room];
 	});
