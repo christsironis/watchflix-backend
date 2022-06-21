@@ -75,7 +75,8 @@ io.on("connection", (socket) => {
 	});
 	socket.on("disconnect", () => {
 		const data = JSON.parse(decodeURIComponent(socket.handshake.headers?.cookie)?.split("=")[1] ?? null);
-		console.log("socket handshake = "+socket.handshake.headers?.cookie);
+		console.log(rooms[25]?.users);
+		console.log(socket.handshake);
 		console.log(data?.username+" user disconnected");
 		delete rooms[data?.room]?.users[data?.username];
 		// if( rooms[data?.room] && Object.keys(rooms[data?.room]?.users).length === 0 ) delete rooms[data?.room];
