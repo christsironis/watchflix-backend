@@ -30,7 +30,7 @@ httpServer.listen(port, () => {
 	console.log("Listening to port " + port);
 });
 
-const io = new Server(httpServer, {cookie: true,
+const io = new Server(httpServer, {
 	transports: ['websocket'],
 	cors: {
 		origin: "*",
