@@ -69,12 +69,14 @@ io.on("connection", (socket) => {
 		rooms[room].ispaused = false;
 	});
 	socket.on("leave_room", ({ room, user}) => {
+		console.log(socket?.handshake);
 		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`,users[room]);
 		socket.leave(room);
 		delete users[ users.socketIDs?.[socket.id]?.room ]?.[ users.socketIDs?.[socket.id]?.user ];
 		// if( rooms[data?.room] && Object.keys(users[data?.room]).length === 0 ) { delete rooms[data?.room]; delete users[data?.room];}
 	});
 	socket.on("disconnect", () => {
+		console.log(socket?.handshake);
 		console.log(users.socketIDs?.[socket.id]?.user+" user disconnected");
 		delete users[ users.socketIDs?.[socket.id]?.room ]?.[ users.socketIDs?.[socket.id]?.user ];
 		// for(const room in users){
