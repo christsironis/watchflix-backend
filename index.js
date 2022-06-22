@@ -68,8 +68,8 @@ io.on("connection", (socket) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
 		rooms[room].date = (dateNow - videoTime*1000) + emitionDelay;
-		socket.to(room).emit("play", {videoTime: videoTime + (emitionDelay/1000), user: user, dateEmited: Date.now()});
-		rooms[room].timestamp = videoTime + (emitionDelay/1000);
+		socket.to(room).emit("play", {videoTime: Number(videoTime) + (emitionDelay/1000), user: user, dateEmited: Date.now()});
+		rooms[room].timestamp = Number(videoTime) + (emitionDelay/1000);
 		rooms[room].ispaused = false;
 	});
 	socket.on("leave_room", ({ room, user}) => {
