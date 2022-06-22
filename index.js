@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
 		if(!rooms[room].ispaused) {
 			rooms[room].timestamp = Date.now() - rooms[room].date;
 		}
-		callback((rooms[room].timestamp/1000).toFixed(3));
+		callback((rooms[room].timestamp));
 	  });
 	socket.on("initialize_room", ({room,user},callback) => {
 		if( !rooms?.[room] ) return;
@@ -67,7 +67,7 @@ io.on("connection", (socket) => {
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		rooms[room].date = (dateNow - videoTime*1000) + emitionDelay;
+		rooms[room].date = (dateNow - (videoTime*1000)) + emitionDelay;
 		socket.to(room).emit("play", {videoTime: Number(videoTime) + (emitionDelay/1000), user: user, dateEmited: Date.now()});
 		rooms[room].timestamp = Number(videoTime) + (emitionDelay/1000);
 		rooms[room].ispaused = false;
