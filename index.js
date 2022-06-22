@@ -8,7 +8,7 @@ import { WSM_FetchSearchData, ReadJson, WriteJson, WSM_FetchAllData } from "./ut
 export const app = express();
 const httpServer = createServer(app);
 
-export let rooms = {"25":{timestamp:0.0,date: 0,ispaused:true, colors: [],magnet:"magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=wss%3A%2F%2Ftracker.fastcast.nz&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F"}};
+export let rooms = {"25":{timestamp:0,date: 0,ispaused:true, colors: [],magnet:"magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=wss%3A%2F%2Ftracker.fastcast.nz&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F"}};
 export let users = {"25":{}, socketIDs: {}};
 export let searchData = [];
 export let movies = [];
@@ -68,8 +68,8 @@ io.on("connection", (socket) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
 		rooms[room].date = (dateNow - videoTime*1000) + emitionDelay;
-		socket.to(room).emit("play", {videoTime: videoTime + emitionDelay, user: user, dateEmited: Date.now()});
-		rooms[room].timestamp = videoTime;
+		socket.to(room).emit("play", {videoTime: videoTime + (emitionDelay/1000), user: user, dateEmited: Date.now()});
+		rooms[room].timestamp = videoTime + (emitionDelay/1000);
 		rooms[room].ispaused = false;
 	});
 	socket.on("leave_room", ({ room, user}) => {
