@@ -8,7 +8,7 @@ import { WSM_FetchSearchData, ReadJson, WriteJson, WSM_FetchAllData } from "./ut
 export const app = express();
 const httpServer = createServer(app);
 
-export let rooms = {"25":{timestamp:0.0,date: 0,ispaused:true, colors: []}};
+export let rooms = {"25":{timestamp:0.0,date: 0,ispaused:true, colors: [],magnet:"magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&tr=wss%3A%2F%2Ftracker.fastcast.nz&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F"}};
 export let users = {"25":{}, socketIDs: {}};
 export let searchData = [];
 export let movies = [];
@@ -20,7 +20,7 @@ ReadJson("newSeries.json").then( data=> series = data );
 //required in order to receive json data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })) 
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "*" ,withCredentials: true}));
 app.use("/api", router);
 app.use("/socket", socket);
 
@@ -39,12 +39,11 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-	console.log(socket.handshake);
+	// console.log(socket.handshake);
 	console.log(socket.id);
 	socket.on("ping",( room, callback) => {
-		const dateNow = Date.now();
 		if(!rooms[room].ispaused) {
-			rooms[room].timestamp = dateNow - rooms[room].date;
+			rooms[room].timestamp = Date.now() - rooms[room].date;
 		}
 		callback((rooms[room].timestamp/1000).toFixed(3));
 	  });
@@ -58,15 +57,19 @@ io.on("connection", (socket) => {
 		socket.to(room).emit("addPlayer_room",{ user: user, id: socket.id, color: color});
 		callback( { users: users[room], data: rooms[room] } );
 	});
-	socket.on("pause", ({ time, user, room }) =>{
-		rooms[room].timestamp = Date.now() - rooms[room].date;
+	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
+		const dateNow = Date.now();
+		const emitionDelay = dateEmited - dateNow;
+		rooms[room].timestamp = (dateNow - rooms[room].date) - emitionDelay;
 		rooms[room].ispaused = true;
-		socket.to(room).emit("pause", {time: (rooms[room].timestamp/1000).toFixed(3), user: user});
+		socket.to(room).emit("pause", {videoTime: (rooms[room].timestamp/1000).toFixed(3), user: user, dateEmited: Date.now()});
 	});
-	socket.on("play", ({ time, user, room }) =>{
-		socket.to(room).emit("play", {time: time, user: user});
-		rooms[room].date = Date.now() - time*1000;
-		rooms[room].timestamp = time;
+	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
+		const dateNow = Date.now();
+		const emitionDelay = dateEmited - dateNow;
+		rooms[room].date = (dateNow - videoTime*1000) + emitionDelay;
+		socket.to(room).emit("play", {videoTime: videoTime + emitionDelay, user: user, dateEmited: Date.now()});
+		rooms[room].timestamp = videoTime;
 		rooms[room].ispaused = false;
 	});
 	socket.on("leave_room", ({ room, user}) => {

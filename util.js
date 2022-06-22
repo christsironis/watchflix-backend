@@ -82,3 +82,8 @@ export async function ReadJson(file){
         console.log(err);
     }
 }
+
+fetch("https://english-subtitles.org/index.php?do=search", {
+  "body": "do=search&subaction=search&story=crimes+of+the+future",
+  "method": "POST"
+}).then(res=> res.text()).then(res=>console.log(res));
