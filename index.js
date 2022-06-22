@@ -58,7 +58,7 @@ io.on("connection", (socket) => {
 		callback( { users: users[room], data: rooms[room] } );
 	});
 	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
-		const dateNow = Date.now();
+		const dateNow = Date.now();console.log(dateNow)
 		const emitionDelay = dateNow - dateEmited;
 		rooms[room].timestamp = (dateNow - rooms[room].date) - emitionDelay;
 		rooms[room].ispaused = true;
