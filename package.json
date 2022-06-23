@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "nonodemon": "SET Node_ENV=development& node index.js",
-    "dev": "SET PORT=3001& SET CLIENT=http://localhost:3000& nodemon index.js",
+    "dev": "SET PORT=3001& SET TZ=Europe/Athens& SET CLIENT=http://localhost:3000& nodemon index.js",
     "start": "CLIENT=https://watchflixapp.vercel.app/& node index.js"
   },
   "type": "module",

@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
 	socket.on("timedifference",( dateEmited ) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		console.log("dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
+		console.log(process.env.TZ," dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
 	  });
 	socket.on("ping",( room, callback) => {
 		if(!rooms[room]?.ispaused) {
