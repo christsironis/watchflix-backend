@@ -59,14 +59,14 @@ io.on("connection", (socket) => {
 	});
 	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
-		const emitionDelay = dateNow - dateEmited;
+		const emitionDelay = dateNow - dateEmited - 18200;
 		rooms[room].timestamp = (dateNow - rooms[room].date) - emitionDelay;
 		rooms[room].ispaused = true;
 		socket.to(room).emit("pause", {videoTime: rooms[room].timestamp, user: user, dateEmited: Date.now()});
 	});
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
-		const emitionDelay = dateNow - dateEmited;
+		const emitionDelay = dateNow - dateEmited - 18200;
 		rooms[room].date = (dateNow - videoTime) + emitionDelay;		
 		console.log("rooms[room].date= ",rooms[room].date," videoTime= ",videoTime," emitionDelay= ",emitionDelay," dateNow= ",dateNow," dateEmited= ",dateEmited)
 
