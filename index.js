@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
 		rooms[room].date = (dateNow - videoTime) + emitionDelay;		
-		console.log("rooms[room].date= ",rooms[room].date," videoTime= ",videoTime," emitionDelay= ",emitionDelay)
+		console.log("rooms[room].date= ",rooms[room].date," videoTime= ",videoTime," emitionDelay= ",emitionDelay," dateNow= ",dateNow," dateEmited= ",dateEmited)
 
 		socket.to(room).emit("play", {videoTime: videoTime + emitionDelay, user: user, dateEmited: Date.now()});
 		rooms[room].timestamp = videoTime + emitionDelay;
@@ -82,7 +82,7 @@ io.on("connection", (socket) => {
 		// if( rooms[data?.room] && Object.keys(users[data?.room]).length === 0 ) { delete rooms[data?.room]; delete users[data?.room];}
 	});
 	socket.on("disconnect", () => {
-		console.log(socket?.handshake);
+		// console.log(socket?.handshake);
 		console.log(users.socketIDs?.[socket.id]?.user+" user disconnected");
 		delete users[ users.socketIDs?.[socket.id]?.room ]?.[ users.socketIDs?.[socket.id]?.user ];
 		// for(const room in users){
