@@ -58,18 +58,18 @@ io.on("connection", (socket) => {
 		callback( { users: users[room], data: rooms[room] } );
 	});
 	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
-		const dateNow = Date.now();console.log(dateNow)
+		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
 		rooms[room].timestamp = (dateNow - rooms[room].date) - emitionDelay;
 		rooms[room].ispaused = true;
-		socket.to(room).emit("pause", {videoTime: (rooms[room].timestamp/1000).toFixed(3), user: user, dateEmited: Date.now()});
+		socket.to(room).emit("pause", {videoTime: rooms[room].timestamp, user: user, dateEmited: Date.now()});
 	});
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		rooms[room].date = (dateNow - (videoTime*1000)) + emitionDelay;
-		socket.to(room).emit("play", {videoTime: Number(videoTime) + (emitionDelay/1000), user: user, dateEmited: Date.now()});
-		rooms[room].timestamp = Number(videoTime) + (emitionDelay/1000);
+		rooms[room].date = (dateNow - videoTime) + emitionDelay;
+		socket.to(room).emit("play", {videoTime: Number(videoTime) + emitionDelay, user: user, dateEmited: Date.now()});
+		rooms[room].timestamp = Number(videoTime) + emitionDelay;
 		rooms[room].ispaused = false;
 	});
 	socket.on("leave_room", ({ room, user}) => {
