@@ -37,19 +37,19 @@ const io = new Server(httpServer, {
 		methods: ["GET", "POST"],
 	},
 });
-const timeOffset = new Date().getTimezoneOffset() * 60000;
+const timeOffset =(+3.00* 60 +  new Date().getTimezoneOffset() )* 60000;
 io.on("connection", (socket) => {
 	// console.log(socket.handshake);
 	console.log(socket.id);
 	socket.on("timedifferencev1",( dateEmited ) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - new Date(dateEmited).getTime();
-		console.log("offset = ", timeOffset," dateNow= "+ dateNow," dateEmited= "+new Date(dateEmited).getTime()," delay= "+emitionDelay)
+		console.log("V1 offset = ", timeOffset," dateNow= "+ dateNow," dateEmited= "+new Date(dateEmited).getTime()," delay= "+emitionDelay)
 	  });
 	socket.on("timedifferencev2",( dateEmited ) => {
-		const dateNow = Date.now()- timeOffset;
+		const dateNow = Date.now()+ timeOffset;
 		const emitionDelay = dateNow - dateEmited;
-		console.log("offset = ", timeOffset, " dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
+		console.log("V2 offset = ", timeOffset, " dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
 	  });
 	socket.on("ping",( room, callback) => {
 		if(!rooms[room]?.ispaused) {
