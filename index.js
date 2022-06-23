@@ -41,11 +41,16 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
 	// console.log(socket.handshake);
 	console.log(socket.id);
+	socket.on("timedifference",( dateEmited ) => {
+		const dateNow = Date.now();
+		const emitionDelay = dateNow - dateEmited;
+		console.log("dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
+	  });
 	socket.on("ping",( room, callback) => {
-		if(!rooms[room].ispaused) {
-			rooms[room].timestamp = Date.now() - rooms[room].date;
+		if(!rooms[room]?.ispaused) {
+			rooms[room].timestamp = Date.now() - rooms[room]?.date;
 		}
-		callback((rooms[room].timestamp));
+		callback((rooms[room]?.timestamp));
 	  });
 	socket.on("initialize_room", ({room,user},callback) => {
 		if( !rooms?.[room] ) return;
