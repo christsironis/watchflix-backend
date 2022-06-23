@@ -42,13 +42,13 @@ io.on("connection", (socket) => {
 	// console.log(socket.handshake);
 	console.log(socket.id);
 	socket.on("timedifference",( dateEmited ) => {
-		const dateNow = new Date(new Date().toISOString().slice(0,-1)).getTime();
-		const emitionDelay = dateNow - dateEmited;
-		console.log(" dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
+		const dateNow = Date.now();
+		const emitionDelay = dateNow - new Date(dateEmited).getTime();
+		console.log(" dateNow= "+ dateNow," dateEmited= "+new Date(dateEmited).getTime()," delay= "+emitionDelay)
 	  });
 	socket.on("ping",( room, callback) => {
 		if(!rooms[room]?.ispaused) {
-			rooms[room].timestamp = new Date(new Date().toISOString().slice(0,-1)).getTime() - rooms[room]?.date;
+			rooms[room].timestamp = Date.now() - rooms[room]?.date;
 		}
 		callback((rooms[room]?.timestamp));
 	  });
@@ -63,19 +63,19 @@ io.on("connection", (socket) => {
 		callback( { users: users[room], data: rooms[room] } );
 	});
 	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
-		const dateNow = new Date(new Date().toISOString().slice(0,-1)).getTime();
-		const emitionDelay = dateNow - dateEmited;
+		const dateNow = Date.now();
+		const emitionDelay = dateNow - new Date(dateEmited.toISOString().slice(0,-1)).getTime();
 		rooms[room].timestamp = (dateNow - rooms[room].date) - emitionDelay;
 		rooms[room].ispaused = true;
-		socket.to(room).emit("pause", {videoTime: rooms[room].timestamp, user: user, dateEmited: new Date(new Date().toISOString().slice(0,-1)).getTime()});
+		socket.to(room).emit("pause", {videoTime: rooms[room].timestamp, user: user, dateEmited: Date.now()});
 	});
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
-		const dateNow = new Date(new Date().toISOString().slice(0,-1)).getTime();
+		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
 		rooms[room].date = (dateNow - videoTime) + emitionDelay;		
 		console.log("rooms[room].date= ",rooms[room].date," videoTime= ",videoTime," emitionDelay= ",emitionDelay," dateNow= ",dateNow," dateEmited= ",dateEmited)
 
-		socket.to(room).emit("play", {videoTime: videoTime + emitionDelay, user: user, dateEmited: new Date(new Date().toISOString().slice(0,-1)).getTime()});
+		socket.to(room).emit("play", {videoTime: videoTime + emitionDelay, user: user, dateEmited: Date.now()});
 		rooms[room].timestamp = videoTime + emitionDelay;
 		rooms[room].ispaused = false;
 	});
