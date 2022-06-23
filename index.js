@@ -52,10 +52,11 @@ io.on("connection", (socket) => {
 		console.log("V2 dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
 	  });
 	socket.on("ping",( room, callback) => {
+		const dateNow = Date.now();
 		if(!rooms[room]?.ispaused) {
-			rooms[room].timestamp = Date.now() - rooms[room]?.date;
+			rooms[room].timestamp = dateNow - rooms[room]?.date;
 		}
-		callback((rooms[room]?.timestamp));
+		callback(rooms[room]?.timestamp, dateNow);
 	  });
 	socket.on("initialize_room", ({room,user},callback) => {
 		if( !rooms?.[room] ) return;
@@ -78,7 +79,7 @@ io.on("connection", (socket) => {
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		rooms[room].date = (dateNow - videoTime) ;		
+		rooms[room].date = (dateNow - videoTime) - emitionDelay ;		
 		console.log("user played "," serverTimestamp= ", rooms[room].timestamp ," videoTime= ",videoTime," emitionDelay= ",emitionDelay)
 
 		socket.to(room).emit("play", {videoTime: videoTime + emitionDelay, user: user, dateEmited: Date.now()});
