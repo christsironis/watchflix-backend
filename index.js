@@ -37,9 +37,12 @@ const io = new Server(httpServer, {
 		methods: ["GET", "POST"],
 	},
 });
-var d = new Date();
-var n = d.getTimezoneOffset();
-console.log("timezoneOffset= ",n);
+setInterval(()=>{
+
+	var d = new Date();
+	var n = d.getTimezoneOffset();
+	console.log("timezoneOffset= ",n," time= ",d.getTime(), " date= ",d);
+},3000);
 io.on("connection", (socket) => {
 	// console.log(socket.handshake);
 	console.log(socket.id);
