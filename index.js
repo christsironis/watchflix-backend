@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		rooms[room].timestamp = videoTime + emitionDelay;
+		rooms[room].timestamp = videoTime;
 		rooms[room].date = dateNow -  rooms[room].timestamp;		
 		
 		socket.to(room).emit("play", {videoTime: rooms[room].timestamp, user: user, dateEmited: dateNow});
