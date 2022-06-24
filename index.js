@@ -71,20 +71,22 @@ io.on("connection", (socket) => {
 	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		rooms[room].timestamp = (dateNow - rooms[room].date);
+		rooms[room].timestamp = ( dateNow - emitionDelay ) - rooms[room].date;
 		rooms[room].ispaused = true;
-		socket.to(room).emit("pause", {videoTime: rooms[room].timestamp, user: user, dateEmited: Date.now()});
+		socket.to(room).emit("pause", {videoTime: rooms[room].timestamp, user: user, dateEmited: dateNow});
+
 		console.log("user paused "," serverTimestamp= ", rooms[room].timestamp ," videoTime= ",videoTime," emitionDelay= ",emitionDelay)
 	});
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		rooms[room].date = (dateNow - videoTime) ;		
-		console.log("user played "," serverTimestamp= ", rooms[room].timestamp ," videoTime= ",videoTime," emitionDelay= ",emitionDelay)
-
-		socket.to(room).emit("play", {videoTime: videoTime + emitionDelay, user: user, dateEmited: Date.now()});
-		rooms[room].timestamp = videoTime;
+		rooms[room].timestamp = videoTime + emitionDelay;
+		rooms[room].date = dateNow -  rooms[room].timestamp;		
+		
+		socket.to(room).emit("play", {videoTime: rooms[room].timestamp, user: user, dateEmited: dateNow});
 		rooms[room].ispaused = false;
+		
+		console.log("user played "," serverTimestamp= ", rooms[room].timestamp ," videoTime= ",videoTime," emitionDelay= ",emitionDelay)
 	});
 	socket.on("leave_room", ({ room, user}) => {
 		console.log(socket?.handshake);
