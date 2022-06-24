@@ -70,8 +70,7 @@ io.on("connection", (socket) => {
 		callback( { users: users[room], data: rooms[room] } );
 	});
 	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
-		const dateNow = Date.now();
-		const emitionDelay = dateNow - new Date(dateEmited).getTime();
+		const emitionDelay = Date.now() - dateEmited;
 		rooms[room].timestamp = videoTime;
 		rooms[room].ispaused = true;
 		socket.to(room).emit("pause", {videoTime: rooms[room].timestamp, user: user, dateEmited: Date.now()});
@@ -80,11 +79,11 @@ io.on("connection", (socket) => {
 	});
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
 		const dateNow = Date.now();
-		const emitionDelay = dateNow - new Date(dateEmited).getTime();
+		const emitionDelay = dateNow - dateEmited;
 		rooms[room].timestamp = videoTime + emitionDelay;
 		rooms[room].date = dateNow -  rooms[room].timestamp;		
 		
-		socket.to(room).emit("play", {videoTime: rooms[room].timestamp, user: user, dateEmited: Date.now()});
+		io.to(room).emit("play", {videoTime: rooms[room].timestamp, user: user, dateEmited: Date.now()});
 		rooms[room].ispaused = false;
 
 		console.log("user played "," serverTimestamp= ", rooms[room].timestamp ," videoTime= ",videoTime," emitionDelay= ",emitionDelay)
