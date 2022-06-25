@@ -69,13 +69,13 @@ io.on("connection", (socket) => {
 		callback( { users: users[room], data: rooms[room] } );
 	});
 	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
-		socket.to(room).emit("pause", {videoTime: videoTime, user: user, dateEmited: Date.now()});
+		socket.to(room).emit("pause", {videoTime: videoTime, user: user /* , dateEmited: Date.now() */ });
 		rooms[room].timestamp = videoTime;
 		rooms[room].ispaused = true;
 		console.log("user paused "," serverTimestamp= ", rooms[room].timestamp ," videoTime= ",videoTime," emitionDelay= ", Date.now() - dateEmited )
 	});
 	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
-		io.to(room).emit("play", {videoTime: videoTime, user: user, dateEmited: Date.now()});
+		io.to(room).emit("play", {videoTime: videoTime, user: user /* , dateEmited: Date.now() */ });
 		const dateNow = Date.now();
 		rooms[room].date = dateNow -  videoTime;		
 		rooms[room].timestamp = videoTime;
