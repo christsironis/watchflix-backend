@@ -74,9 +74,8 @@ io.on("connection", (socket) => {
 		rooms[room].ispaused = true;
 		console.log("user paused "," serverTimestamp= ", rooms[room].timestamp ," videoTime= ",videoTime," emitionDelay= ", Date.now() - dateEmited )
 	});
-	socket.on("play", ({ videoTime, user, room, dateEmited },callback) =>{
-		socket.to(room).emit("play", {videoTime: videoTime, user: user /* , dateEmited: Date.now() */ });
-		callback(videoTime);
+	socket.on("play", ({ videoTime, user, room, dateEmited }) =>{
+		io.to(room).emit("play", {videoTime: videoTime, user: user /* , dateEmited: Date.now() */ });
 		const dateNow = Date.now();
 		rooms[room].date = dateNow -  videoTime;		
 		rooms[room].timestamp = videoTime;
