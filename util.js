@@ -83,7 +83,12 @@ export async function ReadJson(file){
     }
 }
 
-// fetch("https://english-subtitles.org/index.php?do=search", {
-//   "body": "do=search&subaction=search&story=crimes+of+the+future",
-//   "method": "POST"
-// }).then(res=> res.text()).then(res=>console.log(res));
+// fetch("https://api.opensubtitles.com/api/v1/subtitles?imdb_id=1190634&languages=el&season_number=3&episode_number=6&order_by=upload_date&season_number=3", {
+// //   "body": "do=search&subaction=search&story=crimes+of+the+future",
+// "headers": {
+//     "accept": "*/*",
+//     "accept-language": "en,el;q=0.9",
+//     "api-key": "7DMMSjXD4D5JEfbLPRWHng6z66QTAytq",
+// },
+//     "method": "GET"
+// }).then(res=> res.json()).then(res=>console.log(res.data));
