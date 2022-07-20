@@ -86,7 +86,7 @@ function CreateRoomId(data) {
     while (rooms.hasOwnProperty(room)) {
         room = Math.floor(Math.random() * 90000) + 10000;
     }
-    rooms[room] = { magnet: data.magnet, title: data.title, hash: data.hash, timestamp: 0, date: 0 , ispaused: true, subs: null, colors: [] }
+    rooms[room] = { magnet: data.magnet, title: data.title, hash: data.hash, timestamp: 0, date: 0 , imdbID: data.imdbID, type: data.type, season: data.season, episode: data.episode,ispaused: true, subs: null, colors: [] }
     users[room] = {};
 	return room;
 }
