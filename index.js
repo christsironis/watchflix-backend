@@ -44,12 +44,12 @@ io.on("connection", (socket) => {
 	socket.on("timedifferencev1",( dateEmited ) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - new Date(dateEmited).getTime();
-		console.log("V1 dateNow= "+ dateNow," dateEmited= "+new Date(dateEmited).getTime()," delay= "+emitionDelay)
+		// console.log("V1 dateNow= "+ dateNow," dateEmited= "+new Date(dateEmited).getTime()," delay= "+emitionDelay)
 	  });
 	socket.on("timedifferencev2",( dateEmited ) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		console.log("V2 dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
+		// console.log("V2 dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
 	  });
 	socket.on("ping",( room, callback) => {
 		const dateNow = Date.now();
@@ -66,7 +66,7 @@ io.on("connection", (socket) => {
 		users.socketIDs[socket.id] = { user: user, room: room };
 		rooms[room].colors.push( color );
 		socket.to(room).emit("addPlayer_room",{ user: user, id: socket.id, color: color});
-		callback( { users: users[room], data: rooms[room] } );
+		callback( { users: users[room], subs: rooms[room].subs } );
 	});
 	socket.on("pause", ({ videoTime, user, room, dateEmited }) =>{
 		socket.to(room).emit("pause", {videoTime: videoTime, user: user /* , dateEmited: Date.now() */ });
