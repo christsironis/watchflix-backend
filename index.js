@@ -82,9 +82,16 @@ io.on("connection", (socket) => {
 		rooms[room].ispaused = false;
 		console.log("user played "," serverTimestamp= ", rooms[room].timestamp ," videoTime= ",videoTime," emitionDelay= ", dateNow - dateEmited)
 	});
-	socket.on("addSub",({room,name,url,language,langIso}) =>{
-		rooms[room].subs[langIso] = { ...rooms[room].subs[langIso], [name]: {name,url,language,langIso} };
-		socket.to(room).emit("addSub",{name,url,language,langIso});
+	socket.on("addSub",({room,name,url,language,isoLang}) =>{
+		rooms[room].subs[isoLang] = { ...rooms[room].subs[isoLang], [name]: {name,url,language,isoLang} };
+		socket.to(room).emit("addSub",{name,url,language,isoLang});
+		console.log(rooms[room].subs)
+	});
+	socket.on("removeSub",({room,name,isoLang}) =>{
+		console.log(rooms[room].subs);
+		console.log(name,isoLang);
+		delete rooms[room].subs?.[isoLang]?.[name];
+		if( rooms[room].subs[isoLang] && Object.keys(rooms[room].subs[isoLang]).length === 0 ) delete rooms[room].subs[isoLang];
 	});
 	socket.on("leave_room", ({ room, user}) => {
 		console.log(socket?.handshake);
