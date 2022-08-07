@@ -44,12 +44,12 @@ io.on("connection", (socket) => {
 	socket.on("timedifferencev1",( dateEmited ) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - new Date(dateEmited).getTime();
-		// console.log("V1 dateNow= "+ dateNow," dateEmited= "+new Date(dateEmited).getTime()," delay= "+emitionDelay)
+		console.log("V1 dateNow= "+ dateNow," dateEmited= "+new Date(dateEmited).getTime()," delay= "+emitionDelay)
 	  });
 	socket.on("timedifferencev2",( dateEmited ) => {
 		const dateNow = Date.now();
 		const emitionDelay = dateNow - dateEmited;
-		// console.log("V2 dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
+		console.log("V2 dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
 	  });
 	socket.on("ping",( room, callback) => {
 		const dateNow = Date.now();
@@ -85,11 +85,11 @@ io.on("connection", (socket) => {
 	socket.on("addSub",({room,name,url,language,isoLang}) =>{
 		rooms[room].subs[isoLang] = { ...rooms[room].subs[isoLang], [name]: {name,url,language,isoLang} };
 		socket.to(room).emit("addSub",{name,url,language,isoLang});
-		console.log(rooms[room].subs)
+		// console.log(rooms[room].subs)
 	});
 	socket.on("removeSub",({room,name,isoLang}) =>{
-		console.log(rooms[room].subs);
-		console.log(name,isoLang);
+		// console.log(rooms[room].subs);
+		// console.log(name,isoLang);
 		delete rooms[room].subs?.[isoLang]?.[name];
 		if( rooms[room].subs[isoLang] && Object.keys(rooms[room].subs[isoLang]).length === 0 ) delete rooms[room].subs[isoLang];
 	});
@@ -102,7 +102,7 @@ io.on("connection", (socket) => {
 	});
 	socket.on("disconnect", () => {
 		// console.log(socket?.handshake);
-		console.log(users.socketIDs?.[socket.id]?.user+" user disconnected");
+		// console.log(users.socketIDs?.[socket.id]?.user+" user disconnected");
 		delete users[ users.socketIDs?.[socket.id]?.room ]?.[ users.socketIDs?.[socket.id]?.user ];
 		// for(const room in users){
 		// 	for (const [user, {id}] of Object.entries(users[room])) {
