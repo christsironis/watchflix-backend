@@ -19,7 +19,7 @@ ReadJson("newSeries.json").then( data=> series = data );
 
 //required in order to receive json data
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })) 
+app.use(urlencoded({ extended: true })) 
 app.use(cors({ origin: "*" ,withCredentials: true}));
 app.use("/api", router);
 app.use("/socket", socket);

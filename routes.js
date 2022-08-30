@@ -1,11 +1,30 @@
 import express from "express";
 import { searchData, movies, series, app , rooms, users} from "./index.js";
+import fileUpload from 'express-fileupload';
 import cookieParser from "cookie-parser";
 
 export const router = express.Router();
 export const socket = express.Router();
 router.use(cookieParser());
+socket.use(fileUpload());
 
+socket.post('/upload', function(req, res) {
+
+	if (!req.files || Object.keys(req.files).length === 0) {
+	  return res.status(400).send('No files were uploaded.');
+	}
+  
+	// The name of the input field 
+	let file = req.files.sub;
+  
+	// Use the mv() method to place the file somewhere on your server
+	file.mv( '/subs', function(err) {
+	  if (err)
+		return res.status(500).send(err);
+
+	  res.send('File uploaded!');
+	});
+});
 socket.post("/createRoom", async function (req, res) {;
 	// console.log(req.body)
 	if( !req.body.title || !req.body.magnet || !req.body.username){ 

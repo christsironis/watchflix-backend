@@ -1,4 +1,3 @@
-import { text } from 'express';
 import fs from 'fs/promises';
 import fetch from 'node-fetch';
 
