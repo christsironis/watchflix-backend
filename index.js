@@ -1,6 +1,6 @@
 import express, { urlencoded } from "express";
 import cors from "cors";
-import {router, socket} from "./routes.js";
+import {router} from "./routes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { WSM_FetchSearchData, ReadJson, WriteJson, WSM_FetchAllData } from "./util.js";
@@ -22,7 +22,6 @@ app.use(express.json());
 app.use(urlencoded({ extended: true })) 
 app.use(cors({ origin: "*" ,withCredentials: true}));
 app.use("/api", router);
-app.use("/socket", socket);
 
 let port = process.env.PORT || "3000";
 
@@ -52,6 +51,7 @@ io.on("connection", (socket) => {
 		console.log("V2 dateNow= "+ dateNow," dateEmited= "+dateEmited," delay= "+emitionDelay)
 	  });
 	socket.on("ping",( room, callback) => {
+		if( !rooms[room] ) return;
 		const dateNow = Date.now();
 		if(!rooms[room]?.ispaused) {
 			rooms[room].timestamp = dateNow - rooms[room]?.date;
@@ -94,7 +94,7 @@ io.on("connection", (socket) => {
 		if( rooms[room].subs[isoLang] && Object.keys(rooms[room].subs[isoLang]).length === 0 ) delete rooms[room].subs[isoLang];
 	});
 	socket.on("leave_room", ({ room, user}) => {
-		console.log(socket?.handshake);
+		// console.log(socket?.handshake);
 		console.log(`user= ${user} with id = ${socket.id} left the room = ${room}`,users[room]);
 		socket.leave(room);
 		delete users[ users.socketIDs?.[socket.id]?.room ]?.[ users.socketIDs?.[socket.id]?.user ];
