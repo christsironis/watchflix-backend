@@ -25,7 +25,7 @@ router.get('/download/:room/:file', function(req, res) {
 });
 router.post('/upload', function(req, res) {
 	let reqRoom = Object.keys(req.files);
-	
+	console.log(req)
 	if (!req.files || reqRoom.length === 0) {
 		return res.status(400).send('No files were uploaded.');
 	}
@@ -47,7 +47,7 @@ router.post('/upload', function(req, res) {
 			if (err) {
 				return res.status(500).send('Problem reading srt.');
 			}
-			fs.writeFile(`${subFolder}/${file.name}`, 'WEBVTT \n\n'+data, function (err) {
+			fs.writeFile(`${subFolder}/${file.name}`, 'WEBVTT FILE \n\n'+data, function (err) {
 				if (err) {
 					return res.status(500).send('Problem converting to webvtt.');
 				}
