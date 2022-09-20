@@ -51,7 +51,7 @@ router.post('/upload', function(req, res) {
 				if (err) {
 					return res.status(500).send('Problem converting to webvtt.');
 				}
-				rooms[reqRoom].subs['NN'] = { ...rooms[reqRoom].subs['NN'], [file.name]: {name: file.name,url: `${req.protocol}://${req.headers.host}/api/download/${reqRoom[0]}/${file.name}`,language: 'NN',isoLang: 'NN'} };
+				rooms[reqRoom].subs['NN'] = { ...rooms[reqRoom].subs['NN'], [file.name]: {name: file.name,url: `https://${req.headers.host}/api/download/${reqRoom[0]}/${file.name}`,language: 'NN',isoLang: 'NN'} };
 				res.json(`${file.name} uploaded!`);
 			  })
 		  });
