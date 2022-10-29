@@ -4,6 +4,7 @@ import fileUpload from 'express-fileupload';
 import cookieParser from "cookie-parser";
 import fs from "fs";
 import * as url from 'url';
+import srt2vtt from 'srt-to-vtt';
 
 export const router = express.Router();
 export const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -11,52 +12,54 @@ router.use(cookieParser());
 router.use(fileUpload());
 
 router.get('/download/:room/:file', function(req, res) {
-	// if( !req.params.room || !req.params.file ) return;
+	if( !req.params.room || !req.params.file ) return;
 
 	let reqRoom = req.params.room;
 	let reqFile = req.params.file;
-	// res.setHeader("content-type","text/txt; charset=utf-8");
-	// res.setHeader("Content-Length", "43630");
 
-	// var filestream = fs.createReadStream(`${__dirname}/subs/${reqRoom}/${reqFile}`);
-	// filestream.pipe(res);
-	// res.type('webvtt');
-	res.download(`${__dirname}/subs/${reqRoom}/${reqFile}`,reqFile);
+	res.sendFile(`${__dirname}/subs/${reqRoom}/${reqFile}`,reqFile);
 });
+
 router.post('/upload', function(req, res) {
 	let reqRoom = Object.keys(req.files);
-	console.log(req)
+
 	if (!req.files || reqRoom.length === 0) {
 		return res.status(400).send('No files were uploaded.');
 	}
 
 	let subFolder = `${__dirname}/subs/${reqRoom[0]}`;
+	let file = req.files[ reqRoom[0] ];
+	let newFileName = file.name.replace('.srt','.vtt');
 
 	if (!fs.existsSync(subFolder)){
 		fs.mkdirSync(subFolder);
 	}
 
-	// The name of the input field 
-	let file = req.files[ reqRoom[0] ];
-  
 	// Use the mv() method to place the file somewhere on your server
 	file.mv( `${subFolder}/${file.name}`, function(err) {
-		if (err)
-		return res.status(500).send(err);
-		fs.readFile(`${subFolder}/${file.name}`,{encoding:'utf8', flag:'r'}, function(err, data) {
-			if (err) {
-				return res.status(500).send('Problem reading srt.');
-			}
-			fs.writeFile(`${subFolder}/${file.name}`, 'WEBVTT FILE \n\n'+data, function (err) {
-				if (err) {
-					return res.status(500).send('Problem converting to webvtt.');
-				}
-				rooms[reqRoom].subs['NN'] = { ...rooms[reqRoom].subs['NN'], [file.name]: {name: file.name,url: `https://${req.headers.host}/api/download/${reqRoom[0]}/${file.name}`,language: 'NN',isoLang: 'NN'} };
-				res.json(`${file.name} uploaded!`);
-			  })
-		  });
+		if (err) return res.status(500).send(err);
 	});
+		
+	if( file.name.includes('.srt') ){
+		// Begin the read action
+		let stream = fs.createReadStream(`${subFolder}/${file.name}`);
+		// Set an event for the end of the read
+		stream.on('end',()=>{
+			// Delete old file
+			fs.unlink( `${subFolder}/${ file.name }`, (err) => {
+				if (err) throw err;
+				console.log('path/file.txt was deleted');
+			});
+		})
+		// Set the file data
+		stream.pipe(srt2vtt()).pipe(fs.createWriteStream(`${subFolder}/${ newFileName }`));
+	}
+
+	rooms[reqRoom].subs['NN'] = { ...rooms[reqRoom].subs['NN'], [newFileName]: {name: newFileName,url: `http://${req.headers.host}/api/download/${reqRoom[0]}/${newFileName}`,language: 'NN',isoLang: 'NN'} };
+	res.json(`${newFileName} uploaded!`);
+
 });
+
 router.post("/createRoom", async function (req, res) {;
 	// console.log(req.body)
 	if( !req.body.title || !req.body.magnet || !req.body.username){ 
